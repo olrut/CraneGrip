@@ -7,6 +7,7 @@ const DEFAULT_SETTINGS = {
     holds: [{name: "Crimp", depth: "20"}],
     weighThreshold: 10,
     beep: true,
+    enduranceHands: false,
 };
 
 const SettingsContext = createContext(DEFAULT_SETTINGS);

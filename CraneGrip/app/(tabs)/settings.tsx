@@ -1,24 +1,18 @@
 import React, {useState} from 'react';
-import {
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+import {SafeAreaView, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {Slider} from '@miblanchard/react-native-slider';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import {removeItem} from "@/components/AsyncStorage";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import HoldsModal from "@/components/HoldsModal";
 import HoldsPicker from "@/components/HoldsPicker";
-import {useFocusEffect} from "expo-router";
 import {useSettings} from "@/components/SettingContext";
 import {Hold} from "@/types";
 import {handleUrl} from "@/components/helpers";
 import Colors from "@/constants/Colors";
+
+const MAX_THRESHOLD = 250;
+const MIN_THRESHOLD = 1;
 
 export default function Settings() {
     const [confirmClear, setConfirmClear] = useState(false);
@@ -47,6 +41,14 @@ export default function Settings() {
     }
 
     /**
+     * Update the threshold in the settings if it is within the allowed range
+     * @param threshold
+     */
+    const updateThreshold = (threshold: number) => {
+        updateSettings({weighThreshold: threshold});
+    }
+
+    /**
      * Update the active hold in the settings
      * @param activeHold
      */
@@ -67,24 +69,36 @@ export default function Settings() {
                     <View style={styles.sectionBody}>
                         <View style={[styles.rowWrapper, styles.rowFirst]}>
                             <View style={styles.row}>
-                                <Text style={styles.rowLabel}>Weight threshold (kg)</Text>
+                                <Text style={styles.rowLabel}>Weight threshold (1-250 kg)</Text>
                                 <View style={styles.rowSpacer}/>
-
-                                <TextInput
-                                    style={styles.input}
+                                <Text style={styles.rowValue}>{settings.weighThreshold}</Text>
+                            </View>
+                            <View style={styles.slider}>
+                                <Slider
+                                    step={1}
+                                    maximumValue={MAX_THRESHOLD}
+                                    minimumValue={MIN_THRESHOLD}
                                     value={settings.weighThreshold}
-                                    onChangeText={(weighThreshold) => updateSettings({weighThreshold})}
-                                    keyboardType="numeric"
-                                    maxLength={3}
+                                    onValueChange={value => updateThreshold(value)}
                                 />
                             </View>
                         </View>
-
+                        <View style={[styles.rowWrapper]}>
+                            <View style={styles.row}>
+                                <Text style={styles.rowLabel}>Both hands</Text>
+                                <View style={styles.rowSpacer}/>
+                                <Switch
+                                    onValueChange={enduranceHands =>
+                                        updateSettings({enduranceHands: enduranceHands})
+                                    }
+                                    style={{transform: [{scaleX: 0.95}, {scaleY: 0.95}]}}
+                                    value={settings.enduranceHands}/>
+                            </View>
+                        </View>
                         <View style={[styles.rowWrapper, styles.rowLast]}>
                             <View style={styles.row}>
                                 <Text style={styles.rowLabel}>Beep</Text>
                                 <View style={styles.rowSpacer}/>
-
                                 <Switch
                                     onValueChange={beep =>
                                         updateSettings({beep: beep})
@@ -101,12 +115,11 @@ export default function Settings() {
                         <View style={[styles.rowWrapper, styles.rowLast]}>
                             <TouchableOpacity
                                 onPress={() => {
-                                    handleUrl("https://www.github.com");
+                                    handleUrl("https://www.github.com/olrut/cranegrip");
                                 }}
                                 style={styles.row}>
                                 <Text style={styles.rowLabel}>Contact Us</Text>
                                 <View style={styles.rowSpacer}/>
-
                                 <FeatherIcon
                                     color="#bcbcbc"
                                     name="chevron-right"
@@ -146,7 +159,6 @@ export default function Settings() {
                             onClose={() => setHoldsModalVisible(false)}
                 ></HoldsModal>
             }
-
         </SafeAreaView>
     );
 }
@@ -259,5 +271,12 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         color: Colors.dark.text,
         textAlign: 'right',
+    },
+
+    /** Slider */
+    slider: {
+        flex: 1,
+        paddingRight: 16,
+        paddingBottom: 12,
     },
 });

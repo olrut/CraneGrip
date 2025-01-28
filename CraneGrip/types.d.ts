@@ -10,6 +10,7 @@ interface AppSettings {
     holds: Hold[];
     weighThreshold: number;
     beep: boolean;
+    enduranceHands: boolean; // Both if true, otherwise left and right
 }
 
 interface SettingsProviderProps {
