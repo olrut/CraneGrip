@@ -7,6 +7,7 @@ import {MaterialCommunityIcons} from "@expo/vector-icons";
 import {useSettings} from "@/components/SettingContext";
 import {WorkoutResults} from "@/types";
 import Endurance from "@/components/Endurance";
+import {Link} from "expo-router";
 
 
 export default function Index() {
@@ -60,8 +61,9 @@ export default function Index() {
                         </Pressable>
                     </View>
                 </View>
-                {settings.activeHold ?
-                    <>
+                <Link to="/settings" href={'/settings'}>
+                    {settings.activeHold ?
+
                         <View style={styles.holdCard}>
                             <Text style={styles.cardText}>Current hold: {settings.activeHold.name} </Text>
                             <Text style={styles.cardText}>
@@ -69,9 +71,9 @@ export default function Index() {
                                                         color="white"/> {settings.activeHold.depth} mm
                             </Text>
                         </View>
-                    </>
-                    : <Text style={styles.header}>No hold selected, configure hold in settings menu</Text>
-                }
+                        : <Text style={styles.header}>No hold selected, configure hold in settings menu</Text>
+                    }
+                </Link>
                 <Modal visible={modalPeak} animationType="fade" onRequestClose={() => {
                     setModalPeak(!modalPeak)
                 }}>

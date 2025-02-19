@@ -161,7 +161,6 @@ export default function Endurance({save, finishWorkout}: MaxProps) {
                 <Text style={styles.h2}>Current {weight} kg</Text>
                 <Text style={styles.h2}>{currentMax} s</Text>
                 <StopWatch isRunning={isRunning} save={saveTime}></StopWatch>
-
                 <View style={styles.buttons}>
                     <Pressable style={styles.resetButton} onPress={() => resetMax()}>
                         <Text>Reset best time</Text>
