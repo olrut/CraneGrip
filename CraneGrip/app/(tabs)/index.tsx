@@ -1,4 +1,4 @@
-import {Modal, Pressable, StyleSheet, Text, View} from "react-native"
+import {Image, Modal, Pressable, StyleSheet, Text, View} from "react-native"
 import React, {useState} from "react";
 import Max from "@/components/Max";
 import {saveWorkout} from "@/components/AsyncStorage";
@@ -44,6 +44,7 @@ export default function Index() {
     return (
         <>
             <View style={styles.container}>
+                <Image source={require('../../assets/images/index.png')} style={styles.image} />
                 <View style={styles.container}>
                     <Text style={styles.header}>Choose Your Mode</Text>
                     <View style={styles.iconRow}>
@@ -110,7 +111,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     holdCard: {
-        width: '90%',
+        width: '100%',
         padding: 20,
         marginVertical: 10,
         borderRadius: 10,
@@ -141,45 +142,6 @@ const styles = StyleSheet.create({
     },
     image: {
         flex: 1,
-        justifyContent: "center",
-    },
-    chosen: {
-        color: Colors.dark.connected,
-        backgroundColor: Colors.dark.card,
-    },
-    buttons: {
-        flexDirection: "column",
-        justifyContent: "center",
-    },
-    button: {
-        marginHorizontal: 3,
-        justifyContent: "center",
-        borderRadius: 10,
-        alignItems: 'center',
-        backgroundColor: '#008000',
-        padding: 20,
-    },
-    resetButton: {
-        flex: 1,
-        marginHorizontal: 3,
-        justifyContent: "center",
-        paddingHorizontal: 10,
-        borderRadius: 10,
-        alignItems: 'center',
-        backgroundColor: Colors.dark.resetButton,
-    },
-    nextButton: {
-        flex: 1,
-        marginHorizontal: 3,
-        justifyContent: "center",
-        paddingHorizontal: 10,
-        borderRadius: 10,
-        alignItems: 'center',
-        backgroundColor: Colors.dark.connected,
-        padding: 20,
-    },
-    current: {
-        fontSize: 40,
-        color: Colors.dark.connected,
+        resizeMode: "contain",
     },
 });
