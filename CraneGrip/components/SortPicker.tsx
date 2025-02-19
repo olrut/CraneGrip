@@ -104,24 +104,22 @@ const styles = StyleSheet.create({
         color: Colors.dark.text,
     },
     selectedOption: {
-        borderWidth: 1,
-        borderColor: '#444',
         padding: 10,
         borderRadius: 8,
         marginBottom: 20,
-        backgroundColor: '#1E1E1E',
+        backgroundColor: Colors.dark.connected,
     },
     selectedText: {
         fontSize: 16,
-        color: '#CCCCCC',
+        color: Colors.dark.text,
     },
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        backgroundColor: Colors.dark.shadow,
         justifyContent: 'flex-end',
     },
     modalContainer: {
-        backgroundColor: '#121212',
+        backgroundColor: Colors.dark.card,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         padding: 20,
@@ -131,7 +129,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 10,
-        color: Colors.dark.text,
+        color: Colors.dark.button,
     },
     option: {
         padding: 15,
@@ -140,7 +138,7 @@ const styles = StyleSheet.create({
     },
     optionText: {
         fontSize: 16,
-        color: Colors.dark.tabIconDefault,
+        color: Colors.dark.text,
     },
     selectedOptionItem: {
         backgroundColor: Colors.dark.card,

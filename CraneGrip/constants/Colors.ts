@@ -20,6 +20,7 @@ export default {
     selected: '#333333',
     selectorBackground: '#121212',
     modalBackground: 'rgba(0, 0, 0, 0.6)',
+    shadow: 'rgba(0,0,0,0.7)',
   },
   transparent: 'rgba(0,0,0,0)'
 };

@@ -56,8 +56,7 @@ const HoldsPicker: React.FC<HoldsPickerProps> = ({onValueChange, setHoldsModalVi
     return (
         <View>
             <TouchableOpacity style={styles.selectedOption} onPress={openModal}>
-                <Text style={styles.heading}>Current hold</Text>
-
+                <Text style={styles.heading}>Current hold:</Text>
                 <Text style={styles.selectedText}>
                     {settings.activeHold?.name ?? "Select hold"}
                 </Text>
@@ -144,7 +143,8 @@ const styles = StyleSheet.create({
     },
     selectedText: {
         fontSize: 16,
-        color: Colors.dark.tabIconDefault,
+        fontStyle: 'italic',
+        color: Colors.dark.text,
     },
     modalOverlay: {
         flex: 1,

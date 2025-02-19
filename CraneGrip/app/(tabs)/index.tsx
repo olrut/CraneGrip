@@ -62,9 +62,8 @@ export default function Index() {
                 </View>
                 {settings.activeHold ?
                     <>
-                        <Text style={styles.header}>Current hold: </Text>
                         <View style={styles.holdCard}>
-                            <Text style={styles.cardText}> {settings.activeHold.name} </Text>
+                            <Text style={styles.cardText}>Current hold: {settings.activeHold.name} </Text>
                             <Text style={styles.cardText}>
                                 <MaterialCommunityIcons name="ruler" size={30}
                                                         color="white"/> {settings.activeHold.depth} mm
@@ -103,7 +102,7 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     header: {
-        fontSize: 28,
+        fontSize: 26,
         color: 'white',
         fontWeight: 'bold',
         marginBottom: 20,
