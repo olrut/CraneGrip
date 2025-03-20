@@ -6,7 +6,7 @@ import Colors from "@/constants/Colors";
 const CHART_DURATION = 10; // Seconds
 const UPDATE_INTERVAL = 500; // Milliseconds
 
-const WeightChart = ({ weight, maxWeight, threshold }: { weight: number, maxWeight: number, threshold: number | 0 }) => {
+const WeightChart = ({ weight, maxWeight }: { weight: number, maxWeight: number }) => {
     const [data, setData] = useState<number[]>(Array(CHART_DURATION * 2).fill(0));
     const dataRef = useRef<number[]>(Array(CHART_DURATION * 2).fill(0));
 
@@ -31,7 +31,7 @@ const WeightChart = ({ weight, maxWeight, threshold }: { weight: number, maxWeig
                             color: () => Colors.dark.connected, // Line colour
                         },
                         {
-                            data: Array(data.length).fill(threshold ? threshold : maxWeight), // Fill the line with the threshold or max weight
+                            data: Array(data.length).fill(maxWeight), // Fill the line with the threshold or max weight
                             color: () => Colors.dark.resetButton, // Max line colour
                             withDots: false,
                         },

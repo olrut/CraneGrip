@@ -1,18 +1,19 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useRef, useState} from "react";
 import {StyledView, Text} from "@/components/Themed";
 import {WorkoutResults} from "@/types";
 import {useSettings} from "@/components/SettingContext";
 import {useFocusEffect} from "expo-router";
 import {scanForScale, stopScan} from "@/components/ScaleConnect";
-import {Alert, Button, Pressable, StyleSheet, View} from "react-native";
+import {Pressable, StyleSheet, View} from "react-native";
 import ConnectionStatusBar from "@/components/ConnectionStatusBar";
 import Colors from "@/constants/Colors";
 import StopWatch from "@/components/StopWatch";
+import {WorkoutTypes} from "@/enumTypes";
 interface MaxProps {
     finishWorkout: (save: boolean, results: WorkoutResults) => void;
 }
 
-export default function Endurance({save, finishWorkout}: MaxProps) {
+export default function Endurance({finishWorkout}: MaxProps) {
 
     const Hands = {
         BOTH: "Both hands",
@@ -36,7 +37,6 @@ export default function Endurance({save, finishWorkout}: MaxProps) {
     const timeBothRef = useRef(0);
     const [error, setError] = useState(null);
 
-    const [timer, setTimer] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
 
     const updateMax = (weight: number) => {
@@ -84,24 +84,13 @@ export default function Endurance({save, finishWorkout}: MaxProps) {
     );
 
     const finish = (save: boolean) => {
-        switch (currentHand) {
-            case Hands.BOTH:
-                timeBothRef.current = threshold;
-                break;
-            case Hands.RIGHT:
-                timeRightRef.current = threshold;
-                break;
-            case Hands.LEFT:
-                maxLeftRef.current = threshold;
-                break;
+        const results : WorkoutResults = {
+            type: WorkoutTypes.Endurance,
+            left: timeLeftRef.current,
+            right: timeRightRef.current,
+            both: timeBothRef.current,
+            hold: settings.activeHold,
         }
-
-        const results = {
-            left: maxLeftRef.current,
-            right: maxRightRef.current,
-            both: maxBothRef.current,
-            mode: "Endurance",
-        };
 
         finishWorkout(save, results);
     }
@@ -110,11 +99,9 @@ export default function Endurance({save, finishWorkout}: MaxProps) {
         setCurrentHand((prevHand) => {
             switch (prevHand) {
                 case Hands.RIGHT:
-                    maxRightRef.current = threshold;
                     setCurrentMax(timeLeftRef.current);
                     return Hands.LEFT;
                 case Hands.LEFT:
-                    maxLeftRef.current = threshold;
                     setCurrentMax(timeRightRef.current);
                     return Hands.RIGHT;
             }
@@ -135,7 +122,6 @@ export default function Endurance({save, finishWorkout}: MaxProps) {
                 break;
         }
         setCurrentMax(time);
-        console.log("Time saved: " + time);
     }
 
     const resetMax = () => {
@@ -157,7 +143,6 @@ export default function Endurance({save, finishWorkout}: MaxProps) {
         <>
             <StyledView style={styles.container}>
                 <Text style={styles.header}>{settings.activeHold?.name} {settings.activeHold?.depth} mm</Text>
-                <Text style={styles.h2}>{currentHand} > = {settings.weighThreshold} kg</Text>
                 <Text style={styles.h2}>Current {weight} kg</Text>
                 <Text style={styles.h2}>{currentMax} s</Text>
                 <StopWatch isRunning={isRunning} save={saveTime}></StopWatch>

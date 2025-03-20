@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {SafeAreaView, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {SafeAreaView, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View} from 'react-native';
 import {Slider} from '@miblanchard/react-native-slider';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import {removeItem} from "@/components/AsyncStorage";
@@ -7,12 +7,26 @@ import ConfirmDialog from "@/components/ConfirmDialog";
 import HoldsModal from "@/components/HoldsModal";
 import HoldsPicker from "@/components/HoldsPicker";
 import {useSettings} from "@/components/SettingContext";
-import {Hold} from "@/types";
+import {AppSettings, Hold} from "@/types";
 import {handleUrl} from "@/components/helpers";
 import Colors from "@/constants/Colors";
 
+
 const MAX_THRESHOLD = 250;
 const MIN_THRESHOLD = 1;
+const MIN_PREPARATION = 3;
+const MAX_PREPARATION = 60;
+const MAX_REPETITIONS = 10;
+const MIN_REPETITIONS = 1;
+const MIN_REST_TIME = 5;
+const MAX_REST_TIME = 180;
+const MIN_HANG_TIME = 5;
+const MAX_HANG_TIME = 180;
+const MAX_PAUSE_TIME = 60;
+const MIN_PAUSE_TIME = 5;
+const MAX_SETS = 10;
+const MIN_SETS = 1;
+
 
 export default function Settings() {
     const [confirmClear, setConfirmClear] = useState(false);
@@ -40,13 +54,11 @@ export default function Settings() {
         });
     }
 
-    /**
-     * Update the threshold in the settings if it is within the allowed range
-     * @param threshold
-     */
-    const updateThreshold = (threshold: number) => {
-        updateSettings({weighThreshold: threshold});
-    }
+    const saveSetting = (key: keyof AppSettings, value: number) => {
+        console.log("saveSetting: ", key, value);
+        updateSettings({[key]: value});
+    };
+
 
     /**
      * Update the active hold in the settings
@@ -79,7 +91,7 @@ export default function Settings() {
                                     maximumValue={MAX_THRESHOLD}
                                     minimumValue={MIN_THRESHOLD}
                                     value={settings.weighThreshold}
-                                    onValueChange={value => updateThreshold(value)}
+                                    onValueChange={value => saveSetting("weighThreshold", value[0])}
                                 />
                             </View>
                         </View>
@@ -109,6 +121,147 @@ export default function Settings() {
                         </View>
                     </View>
                 </View>
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Timer Config</Text>
+                    <View style={styles.sectionBody}>
+                        <View style={[styles.rowWrapper, styles.rowFirst]}>
+                            <View style={styles.row}>
+                                <Text style={styles.rowLabel}>Preparation time (seconds)</Text>
+                                <View style={styles.rowSpacer}/>
+                                <Text style={styles.rowValue}>{settings.preparationTime}</Text>
+                            </View>
+                            <View style={styles.slider}>
+                                <Slider
+                                    step={1}
+                                    maximumValue={MAX_PREPARATION}
+                                    minimumValue={MIN_PREPARATION}
+                                    value={settings.preparationTime}
+                                    onValueChange={value => saveSetting("preparationTime", value[0])}
+                                />
+                            </View>
+                        </View>
+
+
+                        <View style={[styles.rowWrapper, styles.rowFirst]}>
+                            <View style={styles.row}>
+                                <Text style={styles.rowLabel}>Hang time (seconds)</Text>
+                                <View style={styles.rowSpacer}/>
+                                <Text style={styles.rowValue}>{settings.hangTime}</Text>
+                            </View>
+                            <View style={styles.slider}>
+                                <Slider
+                                    step={1}
+                                    maximumValue={MAX_HANG_TIME}
+                                    minimumValue={MIN_HANG_TIME}
+                                    value={settings.hangTime}
+                                    onValueChange={value => saveSetting("hangTime", value[0])}
+                                />
+                            </View>
+                        </View>
+
+
+                        <View style={[styles.rowWrapper, styles.rowFirst]}>
+                            <View style={styles.row}>
+                                <Text style={styles.rowLabel}>Sets</Text>
+                                <View style={styles.rowSpacer}/>
+                                <Text style={styles.rowValue}>{settings.sets}</Text>
+                            </View>
+                            <View style={styles.slider}>
+                                <Slider
+                                    step={1}
+                                    maximumValue={MAX_SETS}
+                                    minimumValue={MIN_SETS}
+                                    value={settings.sets}
+                                    onValueChange={value => saveSetting("sets", value[0])}
+                                />
+                            </View>
+                        </View>
+
+                        {settings.sets > 1 ? (
+                            <>
+                                <View style={[styles.rowWrapper, styles.rowFirst]}>
+                                    <View style={styles.row}>
+                                        <Text style={styles.rowLabel}>Rest time between sets</Text>
+                                        <View style={styles.rowSpacer}/>
+                                        <Text style={styles.rowValue}>{settings.restTime}</Text>
+                                    </View>
+                                    <View style={styles.slider}>
+                                        <Slider
+                                            step={1}
+                                            maximumValue={MAX_REST_TIME}
+                                            minimumValue={MIN_REST_TIME}
+                                            value={settings.restTime}
+                                            onValueChange={value => saveSetting("restTime", value[0])}
+                                        />
+                                    </View>
+                                </View>
+                                <View style={[styles.rowWrapper, styles.rowFirst]}>
+                                    <View style={styles.row}>
+                                        <Text style={styles.rowLabel}>Repetitions</Text>
+                                        <View style={styles.rowSpacer}/>
+                                        <Text style={styles.rowValue}>{settings.repetitions}</Text>
+                                    </View>
+                                    <View style={styles.slider}>
+                                        <Slider
+                                            step={1}
+                                            maximumValue={MAX_REPETITIONS}
+                                            minimumValue={MIN_REPETITIONS}
+                                            value={settings.repetitions}
+                                            onValueChange={value => saveSetting("repetitions", value[0])}
+                                        />
+                                    </View>
+                                </View>
+                                {settings.repetitions > 1 ? (
+                                    <View style={[styles.rowWrapper, styles.rowFirst]}>
+                                        <View style={styles.row}>
+                                            <Text style={styles.rowLabel}>Pause time between reps</Text>
+                                            <View style={styles.rowSpacer}/>
+                                            <Text style={styles.rowValue}>{settings.pauseTime}</Text>
+                                        </View>
+                                        <View style={styles.slider}>
+                                            <Slider
+                                                step={1}
+                                                maximumValue={MAX_PAUSE_TIME}
+                                                minimumValue={MIN_PAUSE_TIME}
+                                                value={settings.pauseTime}
+                                                onValueChange={value => saveSetting("pauseTime", value[0])}
+                                            />
+                                        </View>
+                                    </View>
+                                ) : null}
+                            </>
+                        ) : null
+                        }
+
+
+                        <View style={[styles.rowWrapper]}>
+                            <View style={styles.row}>
+                                <Text style={styles.rowLabel}>Both hands</Text>
+                                <View style={styles.rowSpacer}/>
+                                <Switch
+                                    onValueChange={hangTimerHands =>
+                                        updateSettings({hangTimerHands: hangTimerHands})
+                                    }
+                                    style={{transform: [{scaleX: 0.95}, {scaleY: 0.95}]}}
+                                    value={settings.hangTimerHands}/>
+                            </View>
+                        </View>
+
+                        <View style={[styles.rowWrapper, styles.rowLast]}>
+                            <View style={styles.row}>
+                                <Text style={styles.rowLabel}>Beep</Text>
+                                <View style={styles.rowSpacer}/>
+                                <Switch
+                                    onValueChange={beep =>
+                                        updateSettings({beep: beep})
+                                    }
+                                    style={{transform: [{scaleX: 0.95}, {scaleY: 0.95}]}}
+                                    value={settings.beep}/>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Resources</Text>
                     <View style={styles.sectionBody}>
@@ -164,7 +317,6 @@ export default function Settings() {
 }
 
 const styles = StyleSheet.create({
-    /** Header */
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -187,7 +339,6 @@ const styles = StyleSheet.create({
         flexBasis: 0,
         textAlign: 'center',
     },
-    /** Content */
     content: {
         paddingHorizontal: 16,
     },
@@ -198,7 +349,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: Colors.dark.selector,
     },
-    /** Section */
     section: {
         paddingVertical: 12,
         marginBottom: 0,
@@ -216,7 +366,6 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         backgroundColor: Colors.dark.card,
     },
-    /** Row */
     row: {
         height: 44,
         width: '100%',
@@ -263,7 +412,6 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: Colors.dark.resetButton,
     },
-    /** Input */
     input: {
         height: 44,
         width: 80,
@@ -272,8 +420,6 @@ const styles = StyleSheet.create({
         color: Colors.dark.text,
         textAlign: 'right',
     },
-
-    /** Slider */
     slider: {
         flex: 1,
         paddingRight: 16,

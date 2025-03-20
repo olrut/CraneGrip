@@ -8,6 +8,11 @@ const DEFAULT_SETTINGS = {
     weighThreshold: 10,
     beep: true,
     enduranceHands: false,
+    preparationTime: 5,
+    hangTime: 10,
+    pauseTime: 5,
+    repetitions: 5,
+    restTime: 60,
 };
 
 const SettingsContext = createContext(DEFAULT_SETTINGS);

@@ -5,13 +5,12 @@ import {saveWorkout} from "@/components/AsyncStorage";
 import Colors from "@/constants/Colors";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
 import {useSettings} from "@/components/SettingContext";
-import {WorkoutResults} from "@/types";
+import {WorkoutHistoryItem, WorkoutResults} from "@/types";
 import Endurance from "@/components/Endurance";
 import {Link} from "expo-router";
-
+import HangTimer from "@/components/HangTimer";
 
 export default function Index() {
-
     const [modalPeak, setModalPeak] = useState(false);
     const [modalEndurance, setModalEndurance] = useState(false);
     const [modalHangTimer, setModalHangTimer] = useState(false);
@@ -24,27 +23,33 @@ export default function Index() {
      */
     const finishWorkout = (save: boolean, results: WorkoutResults) => {
         if (modalPeak) setModalPeak(false)
-        if (modalEndurance) setModalPeak(false)
+        if (modalEndurance) setModalEndurance(false)
+        if (modalHangTimer) setModalHangTimer(false)
 
         if (!save) {
             return
         }
+
+        // If no results, alert user
         if (results.left === 0 && results.right === 0 && results.both === 0) {
             window.alert("No results to save")
+            return
         }
 
-        const time = new Date()
-        results.time = time.toISOString()
-        if (settings.activeHold) {
-            results.hold = settings.activeHold
+        const time = new Date().toISOString()
+
+        const workoutHistoryItem: WorkoutHistoryItem = {
+            ...results,
+            time: time,
         }
-        saveWorkout(results)
+
+        saveWorkout(workoutHistoryItem)
     }
 
     return (
         <>
             <View style={styles.container}>
-                <Image source={require('../../assets/images/index.png')} style={styles.image} />
+                <Image source={require('../../assets/images/index.png')} style={styles.image}/>
                 <View style={styles.container}>
                     <Text style={styles.header}>Choose Your Mode</Text>
                     <View style={styles.iconRow}>
@@ -64,7 +69,6 @@ export default function Index() {
                 </View>
                 <Link to="/settings" href={'/settings'}>
                     {settings.activeHold ?
-
                         <View style={styles.holdCard}>
                             <Text style={styles.cardText}>Current hold: {settings.activeHold.name} </Text>
                             <Text style={styles.cardText}>
@@ -89,7 +93,7 @@ export default function Index() {
                 <Modal visible={modalHangTimer} animationType="fade" onRequestClose={() => {
                     setModalHangTimer(!modalHangTimer)
                 }}>
-                    <Text>Hang Timer</Text>
+                    <HangTimer finishWorkout={finishWorkout}/>
                 </Modal>
             </View>
         </>

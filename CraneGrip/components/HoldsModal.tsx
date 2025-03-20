@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Button, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {Modal, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import {Hold, HoldsModalProps} from "@/types";
 import Colors from "@/constants/Colors";
 

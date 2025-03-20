@@ -24,12 +24,10 @@ export const StopWatch = ({ isRunning, save }) => {
             interval.current = setInterval(() => {
                 setTime(Date.now() - startTime);
             }, 10);
-            console.log("interval started");
         } else if (time > 0) {
             clearInterval(interval.current);
             save(time);
             setTime(0);
-            console.log("interval stopped");
         }
         return () => clearInterval(interval.current);
     }, [isRunning]);

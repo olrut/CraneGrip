@@ -8,6 +8,9 @@ import Colors from "@/constants/Colors";
 import {WorkoutResults} from "@/types";
 import {useSettings} from "@/components/SettingContext";
 import {scanForScale, stopScan} from "@/components/ScaleConnect";
+import SoundPlayer from "react-native-sound-player";
+import {WorkoutTypes} from "@/enumTypes";
+
 
 interface MaxProps {
     finishWorkout: (save: boolean, results: WorkoutResults) => void;
@@ -84,11 +87,15 @@ export default function Max({finishWorkout}: MaxProps) {
         }
 
         const results = {
+            time: new Date().toISOString(),
+            type: WorkoutTypes.Max,
             left: maxLeftRef.current,
             right: maxRightRef.current,
             both: maxBothRef.current,
-            mode: "Max",
+            hold: settings.activeHold,
+            hand: null,
         };
+
         finishWorkout(save, results);
     }
 
@@ -96,7 +103,19 @@ export default function Max({finishWorkout}: MaxProps) {
         setCurrentMax(0);
     };
 
+    /**
+     * TODO: Beep doesnt work :(
+     */
+    const playSound = () => {
+        try {
+            SoundPlayer.playAsset(require("../assets/sounds/race-start.mp3"));
+        } catch (e) {
+            console.error("Cannot play the sound file", e);
+        }
+    };
+
     const changeHands = () => {
+        playSound();
         setCurrentHand((prevHand) => {
             switch (prevHand) {
                 case Hands.BOTH:
@@ -140,8 +159,7 @@ export default function Max({finishWorkout}: MaxProps) {
                 <View style={styles.line}>
                     <MaxLine
                         weight={weight}
-                        maxWeight={currentMax}
-                    />
+                        maxWeight={currentMax}/>
                 </View>
                 <View style={styles.buttons}>
                     <Pressable style={styles.nextButton}

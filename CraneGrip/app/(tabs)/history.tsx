@@ -1,14 +1,19 @@
 import React, {useState} from "react";
 import {useFocusEffect} from "expo-router";
-import {getWorkoutHistory} from "@/components/AsyncStorage";
-import {FlatList, StyleSheet, Text, View} from 'react-native';
+import {getWorkoutHistory, removeWorkout} from "@/components/AsyncStorage";
+import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import CustomPicker from "@/components/SortPicker";
 import Colors from "@/constants/Colors";
+import {MaterialCommunityIcons} from "@expo/vector-icons";
+import {WorkoutTypes} from "@/enumTypes";
+
+
+
 
 const OPTIONS = [
     {label: 'Ascending by time', value: 'ascending'},
     {label: 'Descending by time', value: 'descending'},
-    {label: 'Ascending by mode', value: 'ascendingM'},
+    {label: 'Ascending by type', value: 'ascendingM'},
     {label: 'By Max right hand', value: 'maxRight'},
     {label: 'By Max left hand', value: 'maxLeft'},
     {label: 'By Max both hands', value: 'maxBoth'},
@@ -19,25 +24,39 @@ export default function History() {
     const [sortOrder, setSortOrder] = useState<'ascending' | 'descending'>('ascending');
 
     useFocusEffect(
-        // Get workout history when the screen is focused
         React.useCallback(() => {
             getWorkoutHistory().then((value) => {
-                value.forEach((workout) => {
-                    workout.date = new Date(workout.time);
-                    workout.time = workout.date.toLocaleString();
-                });
-                value.sort((a, b) => b.date - a.date);
-                setWorkoutHistory(value);
+                const formattedHistory = value.map((workout) => ({
+                    ...workout,
+                    date: new Date(workout.time),
+                    // TODO: Localize date and time
+                    formattedDate: new Date(workout.time).toLocaleDateString("fi-FI", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric"
+                    }),
+                    formattedTime: new Date(workout.time).toLocaleTimeString("fi-FI", {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    })
+                }));
+                formattedHistory.sort((a, b) => b.date - a.date);
+                setWorkoutHistory(formattedHistory);
             });
             return () => {
             };
         }, [])
     );
 
+
+    /**
+     * Sorts the workout history based on the selected order
+     * @param order
+     */
     const sortHistory = (order) => {
         const sortedHistory = [...workoutHistory].sort((a, b) => {
             if (order === 'ascendingM') {
-                return a.mode.localeCompare(b.mode);
+                return a.type.localeCompare(b.type);
             }
             if (order === 'maxRight') {
                 return b.right - a.right;
@@ -58,19 +77,62 @@ export default function History() {
         sortHistory(value);
     };
 
-    // History item renderer
+    const deleteWorkout = (dateString: String) => {
+        removeWorkout(dateString).then((updatedHistory) => {
+            setWorkoutHistory(updatedHistory);
+        });
+    };
+
+// History item renderer
     const renderItem = ({item}) => (
-        <View style={styles.card}>
-            <Text style={styles.text}>{item.time}</Text>
-            <Text style={styles.textSecondary}>{item.mode}</Text>
-            {item.both ? <Text style={styles.textSecondary}>Both hands: {item.both}</Text> : null}
-            {item.left ? <Text style={styles.textSecondary}>Left hand: {item.left}</Text> : null}
-            {item.right ? <Text style={styles.textSecondary}>Right hand: {item.right}</Text> : null}
-        </View>
-    );
+            <View style={styles.card}>
+                <View style={styles.iconContainer}>
+                    {item.type === WorkoutTypes.Max ? (
+                        <MaterialCommunityIcons name="chart-line" size={40} color="white"/>
+                    ) : item.type === "Endurance" ? (
+                        <MaterialCommunityIcons name="timer-outline" size={40} color="white"/>
+                    ) : item.type === WorkoutTypes.HangboardTimer  ? (
+                        <MaterialCommunityIcons name="timer-sand-complete" size={40} color="white"/>
+                    ) : null}
+                </View>
+
+
+                <View style={styles.contentContainer}>
+                    {item.type === WorkoutTypes.HangboardTimer ? (
+                        <>
+                            <Text style={styles.type}>{item.type}</Text>
+                            <Text style={styles.date}>{item.formattedDate}</Text>
+                            <Text style={styles.textSecondary}>Sets: {item.sets}</Text>
+                            <Text style={styles.textSecondary}>Repetitions: {item.repetitions}</Text>
+                            <Text style={styles.textSecondary}>Hang time: {item.hangTime} s</Text>
+                            <Text style={styles.textSecondary}>Rest time between sets: {item.restTime} s</Text>
+                            <Text style={styles.textSecondary}>Pause time between reps: {item.pauseTime} </Text>
+                        </>
+                    ) :
+                        <>
+                            <Text style={styles.type}>{item.type}</Text>
+                            <Text style={styles.date}>{item.formattedDate}</Text>
+                            {item.both ? <Text style={styles.textSecondary}>Both hands: {item.both} kg </Text> : null}
+                            {item.left ? <Text style={styles.textSecondary}>Left hand: {item.left} kg</Text> : null}
+                            {item.right ? <Text style={styles.textSecondary}>Right hand: {item.right} kg</Text> : null}
+                        </>
+                    }
+                </View>
+
+
+                <TouchableOpacity
+                    onPress={() => deleteWorkout(item.time)}
+                    style={styles.deleteButton}
+                >
+                    <Text style={styles.deleteButtonText}>Delete</Text>
+                </TouchableOpacity>
+            </View>
+        )
+    ;
+
 
     return (
-        <View style={styles.container}>
+        <View style={styles.contentContainer}>
             <CustomPicker
                 title="Sort by:"
                 selectedValue={sortOrder}
@@ -81,32 +143,55 @@ export default function History() {
                 data={workoutHistory}
                 renderItem={renderItem}
                 keyExtractor={item => item.time}
-                ListEmptyComponent={() => <Text style={styles.text}>No history</Text>}
+                ListEmptyComponent={() => <Text style={styles.textSecondary}>No history</Text>}
             />
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: Colors.dark.background,
-        padding: 10,
-    },
     card: {
+        flexDirection: "row",
+        alignItems: "center",
         backgroundColor: Colors.dark.card,
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 10,
-        alignItems: 'center',
+        padding: 15,
+        marginVertical: 8,
+        borderRadius: 10,
     },
-    text: {
-        fontSize: 18,
+    iconContainer: {
+        width: 50,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    contentContainer: {
+        flex: 1,
+        paddingHorizontal: 10,
+    },
+    deleteButton: {
+        backgroundColor: Colors.dark.resetButton,
+        paddingVertical: 8,
+        paddingHorizontal: 15,
+        borderRadius: 5,
+    },
+    deleteButtonText: {
         color: Colors.dark.text,
-        fontWeight: 'bold',
+        fontWeight: "bold",
+    },
+    type: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: Colors.dark.text,
+    },
+    mode: {
+        fontSize: 14,
+        color: Colors.dark.text,
+    },
+    date: {
+        fontSize: 12,
+        color: Colors.dark.text,
     },
     textSecondary: {
-        fontSize: 14,
+        fontSize: 12,
         color: Colors.dark.text,
     },
 });

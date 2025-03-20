@@ -18,6 +18,7 @@ const HoldsPicker: React.FC<HoldsPickerProps> = ({onValueChange, setHoldsModalVi
     const [isVisible, setIsVisible] = useState(false);
     const slideAnim = useRef(new Animated.Value(0)).current;
     const {settings, updateSettings} = useSettings();
+
     const openModal = () => {
         setIsVisible(true);
         Animated.timing(slideAnim, {
