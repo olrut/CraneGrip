@@ -8,8 +8,6 @@ import {MaterialCommunityIcons} from "@expo/vector-icons";
 import {WorkoutTypes} from "@/enumTypes";
 
 
-
-
 const OPTIONS = [
     {label: 'Ascending by time', value: 'ascending'},
     {label: 'Descending by time', value: 'descending'},
@@ -85,20 +83,18 @@ export default function History() {
 
 // History item renderer
     const renderItem = ({item}) => (
-            <View style={styles.card}>
-                <View style={styles.iconContainer}>
-                    {item.type === WorkoutTypes.Max ? (
-                        <MaterialCommunityIcons name="chart-line" size={40} color="white"/>
-                    ) : item.type === "Endurance" ? (
-                        <MaterialCommunityIcons name="timer-outline" size={40} color="white"/>
-                    ) : item.type === WorkoutTypes.HangboardTimer  ? (
-                        <MaterialCommunityIcons name="timer-sand-complete" size={40} color="white"/>
-                    ) : null}
-                </View>
-
-
-                <View style={styles.contentContainer}>
-                    {item.type === WorkoutTypes.HangboardTimer ? (
+        <View style={styles.card}>
+            <View style={styles.iconContainer}>
+                {item.type === WorkoutTypes.Max ? (
+                    <MaterialCommunityIcons name="chart-line" size={40} color="white"/>
+                ) : item.type === "Endurance" ? (
+                    <MaterialCommunityIcons name="timer-outline" size={40} color="white"/>
+                ) : item.type === WorkoutTypes.HangboardTimer ? (
+                    <MaterialCommunityIcons name="timer-sand-complete" size={40} color="white"/>
+                ) : null}
+            </View>
+            <View style={styles.contentContainer}>
+                {item.type === WorkoutTypes.HangboardTimer ? (
                         <>
                             <Text style={styles.type}>{item.type}</Text>
                             <Text style={styles.date}>{item.formattedDate}</Text>
@@ -109,27 +105,25 @@ export default function History() {
                             <Text style={styles.textSecondary}>Pause time between reps: {item.pauseTime} </Text>
                         </>
                     ) :
-                        <>
-                            <Text style={styles.type}>{item.type}</Text>
-                            <Text style={styles.date}>{item.formattedDate}</Text>
-                            {item.both ? <Text style={styles.textSecondary}>Both hands: {item.both} kg </Text> : null}
-                            {item.left ? <Text style={styles.textSecondary}>Left hand: {item.left} kg</Text> : null}
-                            {item.right ? <Text style={styles.textSecondary}>Right hand: {item.right} kg</Text> : null}
-                        </>
-                    }
-                </View>
-
-
-                <TouchableOpacity
-                    onPress={() => deleteWorkout(item.time)}
-                    style={styles.deleteButton}
-                >
-                    <Text style={styles.deleteButtonText}>Delete</Text>
-                </TouchableOpacity>
+                    <>
+                        <Text style={styles.type}>{item.type}</Text>
+                        <Text style={styles.date}>{item.formattedDate}</Text>
+                        {item.both ? <Text style={styles.textSecondary}>Both hands: {item.both} kg </Text> : null}
+                        {item.left ? <Text style={styles.textSecondary}>Left hand: {item.left} kg</Text> : null}
+                        {item.right ? <Text style={styles.textSecondary}>Right hand: {item.right} kg</Text> : null}
+                    </>
+                }
             </View>
-        )
-    ;
 
+
+            <TouchableOpacity
+                onPress={() => deleteWorkout(item.time)}
+                style={styles.deleteButton}
+            >
+                <Text style={styles.deleteButtonText}>Delete</Text>
+            </TouchableOpacity>
+        </View>
+    );
 
     return (
         <View style={styles.contentContainer}>
@@ -166,6 +160,8 @@ const styles = StyleSheet.create({
     contentContainer: {
         flex: 1,
         paddingHorizontal: 10,
+        paddingVertical: 10,
+        backgroundColor: Colors.dark.card,
     },
     deleteButton: {
         backgroundColor: Colors.dark.resetButton,

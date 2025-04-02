@@ -55,7 +55,6 @@ export default function Settings() {
     }
 
     const saveSetting = (key: keyof AppSettings, value: number) => {
-        console.log("saveSetting: ", key, value);
         updateSettings({[key]: value});
     };
 
@@ -140,8 +139,6 @@ export default function Settings() {
                                 />
                             </View>
                         </View>
-
-
                         <View style={[styles.rowWrapper, styles.rowFirst]}>
                             <View style={styles.row}>
                                 <Text style={styles.rowLabel}>Hang time (seconds)</Text>
@@ -158,8 +155,6 @@ export default function Settings() {
                                 />
                             </View>
                         </View>
-
-
                         <View style={[styles.rowWrapper, styles.rowFirst]}>
                             <View style={styles.row}>
                                 <Text style={styles.rowLabel}>Sets</Text>
@@ -176,7 +171,6 @@ export default function Settings() {
                                 />
                             </View>
                         </View>
-
                         {settings.sets > 1 ? (
                             <>
                                 <View style={[styles.rowWrapper, styles.rowFirst]}>
@@ -232,8 +226,6 @@ export default function Settings() {
                             </>
                         ) : null
                         }
-
-
                         <View style={[styles.rowWrapper]}>
                             <View style={styles.row}>
                                 <Text style={styles.rowLabel}>Both hands</Text>
@@ -246,7 +238,6 @@ export default function Settings() {
                                     value={settings.hangTimerHands}/>
                             </View>
                         </View>
-
                         <View style={[styles.rowWrapper, styles.rowLast]}>
                             <View style={styles.row}>
                                 <Text style={styles.rowLabel}>Beep</Text>
@@ -261,7 +252,6 @@ export default function Settings() {
                         </View>
                     </View>
                 </View>
-
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Resources</Text>
                     <View style={styles.sectionBody}>

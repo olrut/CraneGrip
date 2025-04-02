@@ -44,7 +44,7 @@ function HangTimer({finishWorkout}) {
                     setIsResting(true);
                     setCurrentSet((prev) => prev + 1);
                 } else {
-                    finish(false);
+                    finish();
                 }
             }, settings.hangTime * 1000);
         } else if (isPreparation) {
@@ -98,12 +98,12 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         overflow: "hidden",
+        backgroundColor: Colors.dark.connected,
     },
     info: {
         paddingTop: 20,
         alignItems: "center",
-        color: Colors.dark.connected,
-        backgroundColor: Colors.dark.button,
+        backgroundColor: Colors.dark.selector,
         width: "100%",
     },
     header: {

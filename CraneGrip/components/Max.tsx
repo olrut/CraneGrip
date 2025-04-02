@@ -164,20 +164,18 @@ export default function Max({finishWorkout}: MaxProps) {
                 <View style={styles.buttons}>
                     <Pressable style={styles.nextButton}
                                onPress={() => changeHands()}>
-                        <Text>Change hand</Text>
+                        <Text style={styles.buttonText}>Change hand</Text>
                     </Pressable>
                 </View>
                 <View style={styles.buttons}>
                     <Pressable style={styles.resetButton} onPress={() => resetMax()}>
-                        <Text>Reset max</Text>
+                        <Text style={styles.buttonText}>Reset max</Text>
                     </Pressable>
-
                     <Pressable style={styles.resetButton} onPress={() => finish(false)}>
-                        <Text>Cancel</Text>
+                        <Text style={styles.buttonText}>Cancel</Text>
                     </Pressable>
-
                     <Pressable style={styles.button} onPress={() => finish(true)}>
-                        <Text>Save</Text>
+                        <Text style={styles.buttonText}>Save</Text>
                     </Pressable>
                 </View>
                 <ConnectionStatusBar isConnected={isConnected} error={error}/>
@@ -200,11 +198,15 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: 0,
+        backgroundColor: Colors.dark.background,
     },
     line: {
         flex: 0.9,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    buttonText: {
+        color: Colors.dark.text,
     },
     card: {
         backgroundColor: Colors.dark.card,
@@ -254,6 +256,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: Colors.dark.connected,
         padding: 20,
+        color: Colors.dark.text,
     },
     current: {
         fontSize: 40,
@@ -261,6 +264,7 @@ const styles = StyleSheet.create({
     },
     kg: {
         fontSize: 30,
+        color: Colors.dark.text,
     },
     maxval: {
         fontSize: 40,
