@@ -8,6 +8,7 @@ import 'react-native-reanimated';
 // Import your global CSS file
 import "../global.css";
 import {SettingsProvider} from "@/components/SettingContext";
+import {StatusBar} from "expo-status-bar";
 
 export {
     // Catch any errors thrown by the Layout component.
@@ -47,6 +48,7 @@ export default function RootLayout() {
 function RootLayoutNav() {
     return (
             <SettingsProvider>
+                <StatusBar style="light"/>
                 <Stack>
                     <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
                 </Stack>

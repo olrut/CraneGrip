@@ -51,7 +51,7 @@ export default function Index() {
             <View style={styles.container}>
                 <Image source={require('../../assets/images/index.png')} style={styles.image}/>
                 <View style={styles.container}>
-                    <Text style={styles.header}>Choose Your Mode</Text>
+                    <Text style={styles.header}>Casdhoose Your Mode</Text>
                     <View style={styles.iconRow}>
                         <Pressable style={styles.iconButton} onPress={() => setModalPeak(true)}>
                             <MaterialCommunityIcons name="chart-line" size={40} color="white"/>
@@ -89,7 +89,6 @@ export default function Index() {
                 }}>
                     <Endurance finishWorkout={finishWorkout}/>
                 </Modal>
-
                 <Modal visible={modalHangTimer} animationType="fade" onRequestClose={() => {
                     setModalHangTimer(!modalHangTimer)
                 }}>
