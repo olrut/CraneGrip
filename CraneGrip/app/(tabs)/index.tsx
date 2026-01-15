@@ -1,11 +1,11 @@
-import {Image, Modal, Pressable, StyleSheet, Text, View} from "react-native"
+import {Alert, Image, Modal, Pressable, StyleSheet, Text, View} from "react-native"
 import React, {useState} from "react";
 import Max from "@/components/Max";
 import {saveWorkout} from "@/components/AsyncStorage";
 import Colors from "@/constants/Colors";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
 import {useSettings} from "@/components/SettingContext";
-import {WorkoutHistoryItem, WorkoutResults} from "@/types";
+import {WorkoutHistoryItem} from "@/types";
 import Endurance from "@/components/Endurance";
 import {Link} from "expo-router";
 import HangTimer from "@/components/HangTimer";
@@ -21,7 +21,7 @@ export default function Index() {
      * @param save Boolean to determine if results should be saved
      * @param results Results of the workout
      */
-    const finishWorkout = (save: boolean, results: WorkoutResults) => {
+    const finishWorkout = (save: boolean, results: WorkoutHistoryItem) => {
         if (modalPeak) setModalPeak(false)
         if (modalEndurance) setModalEndurance(false)
         if (modalHangTimer) setModalHangTimer(false)
@@ -31,8 +31,12 @@ export default function Index() {
         }
 
         // If no results, alert user
+        // Attempt to guard empty save for strength/endurance results
+        // For HangTimer results, there is no left/right/both
+        // so only check when those fields exist
+        // @ts-expect-error runtime guard for mixed result types
         if (results.left === 0 && results.right === 0 && results.both === 0) {
-            window.alert("No results to save")
+            Alert.alert("No results to save")
             return
         }
 
@@ -51,7 +55,7 @@ export default function Index() {
             <View style={styles.container}>
                 <Image source={require('../../assets/images/index.png')} style={styles.image}/>
                 <View style={styles.container}>
-                    <Text style={styles.header}>Casdhoose Your Mode</Text>
+                    <Text style={styles.header}>Choose Your Mode</Text>
                     <View style={styles.iconRow}>
                         <Pressable style={styles.iconButton} onPress={() => setModalPeak(true)}>
                             <MaterialCommunityIcons name="chart-line" size={40} color="white"/>

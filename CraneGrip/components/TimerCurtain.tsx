@@ -44,15 +44,21 @@ export const TimerCurtain = ({initialSeconds, finished}) => {
     });
 
     return (
-        <View style={styles.container}>
-            <Animated.View
-                style={[
-                    styles.animatedBackground,
-                    {width: screenWidth, backgroundColor: backgroundColor, transform: [{translateY: translateYValue}]},
-                ]}
-            />
-            <Text style={styles.timerText}>{seconds}</Text>
-        </View>
+        <>
+            <Text style={styles.timerText}>{seconds} s</Text>
+            <View style={styles.container}>
+                <Animated.View
+                    style={[
+                        styles.animatedBackground,
+                        {
+                            width: screenWidth,
+                            backgroundColor: backgroundColor,
+                            transform: [{translateY: translateYValue}]
+                        },
+                    ]}
+                />
+            </View>
+        </>
     );
 };
 
@@ -69,8 +75,8 @@ const styles = StyleSheet.create({
         height: "100%",
     },
     timerText: {
-        fontSize: 30,
-        color: Colors.dark.connected,
+        fontSize: 50,
+        color: Colors.dark.text,
         fontWeight: "bold",
     },
 });

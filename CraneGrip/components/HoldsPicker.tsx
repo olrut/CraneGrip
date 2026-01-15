@@ -48,9 +48,10 @@ const HoldsPicker: React.FC<HoldsPickerProps> = ({onValueChange, setHoldsModalVi
      * @param hold
      */
     const removeHold = (hold: Hold) => {
+        const filtered = settings.holds.filter((item: Hold) => item.name !== hold.name);
         updateSettings({
-            holds: settings.holds.filter((item: Hold) => item.name !== hold.name),
-            activeHold: settings.activeHold?.name === hold.name ? null : settings.activeHold,
+            holds: filtered,
+            activeHold: settings.activeHold && settings.activeHold.name === hold.name ? (filtered[0] ?? settings.activeHold) : settings.activeHold,
         });
     };
 

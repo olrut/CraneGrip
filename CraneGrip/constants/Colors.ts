@@ -2,7 +2,22 @@ const tintColorDark = '#FFFFFF';
 
 export default {
   light: {
-    // TODO: Implement light theme
+      text: '#000000',
+      background: '#FFFFFF',
+      tint: '#000000',
+      button: '#3C3C3C',
+      card: '#F3F3F3',
+      connected: '#0E7C86',
+      disconnected: '#C62828',
+      confirmButton: '#2E7D32',
+      resetButton: '#D32F2F',
+      selector: '#333333',
+      tabIconSelected: '#000000',
+      separator: '#E0E0E0',
+      selected: '#EDEDED',
+      selectorBackground: '#FFFFFF',
+      modalBackground: 'rgba(0, 0, 0, 0.2)',
+      shadow: 'rgba(0,0,0,0.15)',
   },
   dark: {
       text: '#FFFFFF',

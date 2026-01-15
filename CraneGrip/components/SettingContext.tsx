@@ -2,20 +2,30 @@ import React, {createContext, useContext, useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AppSettings, SettingsProviderProps} from "@/types";
 
-const DEFAULT_SETTINGS = {
+const DEFAULT_SETTINGS: AppSettings = {
     activeHold: {name: "Crimp", depth: "20"},
     holds: [{name: "Crimp", depth: "20"}],
     weighThreshold: 10,
     beep: true,
     enduranceHands: false,
+    hangTimerHands: false,
     preparationTime: 5,
     hangTime: 10,
     pauseTime: 5,
     repetitions: 5,
     restTime: 60,
+    sets: 3,
 };
 
-const SettingsContext = createContext(DEFAULT_SETTINGS);
+type SettingsContextType = {
+    settings: AppSettings;
+    updateSettings: (newSettings: Partial<AppSettings>) => void;
+};
+
+const SettingsContext = createContext<SettingsContextType>({
+    settings: DEFAULT_SETTINGS,
+    updateSettings: () => {},
+});
 
 
 export const SettingsProvider: React.FC<SettingsProviderProps> = ({children}) => {
@@ -58,7 +68,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({children}) =>
         }
     }, [settings, loading]);
 
-    const updateSettings = (newSettings: AppSettings) => {
+    const updateSettings = (newSettings: Partial<AppSettings>) => {
         setSettings((prevSettings) => ({
             ...prevSettings,
             ...newSettings,
@@ -76,12 +86,7 @@ export const SettingsProvider: React.FC<SettingsProviderProps> = ({children}) =>
     );
 };
 
-export const useSettings = (): {
-    settings: AppSettings;
-    updateSettings: (newSettings: Partial<AppSettings>) => void;
-} => {
-    return useContext(SettingsContext);
-};
+export const useSettings = () => useContext(SettingsContext);
 
 // TODO: If needed
 const LoadingScreen = () => (

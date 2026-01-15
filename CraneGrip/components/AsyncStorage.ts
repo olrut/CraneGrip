@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {WorkoutHistoryItem, WorkoutResults} from "@/types";
+import {WorkoutHistoryItem} from "@/types";
 
 export const getItem = async (key: string) => {
     try {
@@ -25,7 +25,7 @@ export const saveWorkout = async (value: WorkoutHistoryItem) => {
  * Returns the workout history from AsyncStorage
  *
  */
-export const getWorkoutHistory = async () : Promise<WorkoutResults[]> => {
+export const getWorkoutHistory = async () : Promise<WorkoutHistoryItem[]> => {
     try {
         const history = await getItem('workouts');
         return history || [];
@@ -54,7 +54,7 @@ export const removeItem = async (key: string) => {
  * @param dateString Timestamp of the workout to remove
  * @returns Updated workout history
  */
-export const removeWorkout = async (dateString: string)  => {
+export const removeWorkout = async (dateString: string): Promise<WorkoutHistoryItem[]> => {
     try {
         const existingHistory = await getItem('workouts') || [];
         const updatedHistory = existingHistory.filter((workout: WorkoutHistoryItem) => workout.time !== dateString);

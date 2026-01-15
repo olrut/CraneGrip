@@ -5,10 +5,18 @@ import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import CustomPicker from "@/components/SortPicker";
 import Colors from "@/constants/Colors";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
-import {WorkoutTypes} from "@/enumTypes";
+import {WorkoutTypes, WorkoutHistoryItem} from "@/types";
+
+type HistoryRow = WorkoutHistoryItem & {
+    date: number;
+    formattedDate: string;
+    formattedTime: string;
+};
 
 
-const OPTIONS = [
+type SortValue = 'ascending' | 'descending' | 'ascendingM' | 'maxRight' | 'maxLeft' | 'maxBoth';
+
+const OPTIONS: { label: string; value: SortValue }[] = [
     {label: 'Ascending by time', value: 'ascending'},
     {label: 'Descending by time', value: 'descending'},
     {label: 'Ascending by type', value: 'ascendingM'},
@@ -18,15 +26,15 @@ const OPTIONS = [
 ];
 
 export default function History() {
-    const [workoutHistory, setWorkoutHistory] = useState([]);
-    const [sortOrder, setSortOrder] = useState<'ascending' | 'descending'>('ascending');
+    const [workoutHistory, setWorkoutHistory] = useState<HistoryRow[]>([]);
+    const [sortOrder, setSortOrder] = useState<SortValue>('ascending');
 
     useFocusEffect(
         React.useCallback(() => {
             getWorkoutHistory().then((value) => {
-                const formattedHistory = value.map((workout) => ({
+                const formattedHistory: HistoryRow[] = value.map((workout) => ({
                     ...workout,
-                    date: new Date(workout.time),
+                    date: new Date(workout.time).getTime(),
                     // TODO: Localize date and time
                     formattedDate: new Date(workout.time).toLocaleDateString("fi-FI", {
                         day: "2-digit",
@@ -51,7 +59,7 @@ export default function History() {
      * Sorts the workout history based on the selected order
      * @param order
      */
-    const sortHistory = (order) => {
+    const sortHistory = (order: SortValue) => {
         const sortedHistory = [...workoutHistory].sort((a, b) => {
             if (order === 'ascendingM') {
                 return a.type.localeCompare(b.type);
@@ -70,33 +78,71 @@ export default function History() {
         setWorkoutHistory(sortedHistory);
     };
 
-    const handleSortChange = (value: 'ascending' | 'descending') => {
+    const handleSortChange = (value: SortValue) => {
         setSortOrder(value);
         sortHistory(value);
     };
 
-    const deleteWorkout = (dateString: String) => {
+    const deleteWorkout = (dateString: string) => {
         removeWorkout(dateString).then((updatedHistory) => {
             setWorkoutHistory(updatedHistory);
         });
     };
 
-// History item renderer
-    const renderItem = ({item}) => (
-        <View style={styles.card}>
+    // Accent color by workout type
+    const getTypeAccent = (type: WorkoutTypes) => {
+        switch (type) {
+            case WorkoutTypes.Max:
+                return Colors.dark.resetButton; // red accent
+            case WorkoutTypes.Endurance:
+                return Colors.dark.connected; // teal accent
+            case WorkoutTypes.HangboardTimer:
+                return Colors.dark.confirmButton; // green accent
+            default:
+                return Colors.dark.selector; // fallback
+        }
+    };
+
+    const getTypeIcon = (type: WorkoutTypes): keyof typeof MaterialCommunityIcons.glyphMap => {
+        switch (type) {
+            case WorkoutTypes.Max:
+                return 'chart-line';
+            case WorkoutTypes.Endurance:
+                return 'timer-outline';
+            case WorkoutTypes.HangboardTimer:
+                return 'timer-sand-complete';
+            default:
+                return 'circle';
+        }
+    };
+
+    // History item renderer
+    const renderItem = ({item, index}: { item: HistoryRow; index: number }) => (
+        <View
+            style={[
+                styles.card,
+                {
+                    backgroundColor: index % 2 === 0 ? Colors.dark.card : Colors.dark.selected,
+                    borderLeftColor: getTypeAccent(item.type),
+                },
+            ]}
+        >
             <View style={styles.iconContainer}>
                 {item.type === WorkoutTypes.Max ? (
                     <MaterialCommunityIcons name="chart-line" size={40} color="white"/>
-                ) : item.type === "Endurance" ? (
+                ) : item.type === WorkoutTypes.Endurance ? (
                     <MaterialCommunityIcons name="timer-outline" size={40} color="white"/>
                 ) : item.type === WorkoutTypes.HangboardTimer ? (
                     <MaterialCommunityIcons name="timer-sand-complete" size={40} color="white"/>
                 ) : null}
             </View>
-            <View style={styles.contentContainer}>
+            <View style={styles.itemContent}>
                 {item.type === WorkoutTypes.HangboardTimer ? (
                         <>
-                            <Text style={styles.type}>{item.type}</Text>
+                            <View style={[styles.typeChip, { backgroundColor: getTypeAccent(item.type) }]}>
+                                <MaterialCommunityIcons name={getTypeIcon(item.type)} size={14} color="white" style={styles.typeChipIcon} />
+                                <Text style={styles.typeChipText}>{item.type}</Text>
+                            </View>
                             <Text style={styles.date}>{item.formattedDate}</Text>
                             <Text style={styles.textSecondary}>Sets: {item.sets}</Text>
                             <Text style={styles.textSecondary}>Repetitions: {item.repetitions}</Text>
@@ -106,7 +152,10 @@ export default function History() {
                         </>
                     ) :
                     <>
-                        <Text style={styles.type}>{item.type}</Text>
+                        <View style={[styles.typeChip, { backgroundColor: getTypeAccent(item.type) }]}>
+                            <MaterialCommunityIcons name={getTypeIcon(item.type)} size={14} color="white" style={styles.typeChipIcon} />
+                            <Text style={styles.typeChipText}>{item.type}</Text>
+                        </View>
                         <Text style={styles.date}>{item.formattedDate}</Text>
                         {item.both ? <Text style={styles.textSecondary}>Both hands: {item.both} kg </Text> : null}
                         {item.left ? <Text style={styles.textSecondary}>Left hand: {item.left} kg</Text> : null}
@@ -138,6 +187,7 @@ export default function History() {
                 renderItem={renderItem}
                 keyExtractor={item => item.time}
                 ListEmptyComponent={() => <Text style={styles.textSecondary}>No history</Text>}
+                contentContainerStyle={{ paddingVertical: 8 }}
             />
         </View>
     );
@@ -149,8 +199,9 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: Colors.dark.card,
         padding: 15,
-        marginVertical: 8,
+        marginVertical: 6,
         borderRadius: 10,
+        borderLeftWidth: 4,
     },
     iconContainer: {
         width: 50,
@@ -161,7 +212,13 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingHorizontal: 10,
         paddingVertical: 10,
-        backgroundColor: Colors.dark.card,
+        backgroundColor: Colors.dark.background,
+    },
+    itemContent: {
+        flex: 1,
+        paddingHorizontal: 10,
+        paddingVertical: 10,
+        backgroundColor: 'transparent',
     },
     deleteButton: {
         backgroundColor: Colors.dark.resetButton,
@@ -177,6 +234,24 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "bold",
         color: Colors.dark.text,
+    },
+    typeChip: {
+        alignSelf: 'flex-start',
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 999,
+        marginBottom: 6,
+    },
+    typeChipIcon: {
+        marginRight: 6,
+    },
+    typeChipText: {
+        color: Colors.dark.text,
+        fontSize: 12,
+        fontWeight: '700',
+        letterSpacing: 0.3,
     },
     mode: {
         fontSize: 14,

@@ -1,6 +1,6 @@
-import React from "react";
+import type React from "react";
 
-interface Hold {
+export interface Hold {
     name: string;
     depth: string;
 }
@@ -11,7 +11,7 @@ export enum WorkoutTypes {
     HangboardTimer = "Hangboard timer",
 }
 
-interface AppSettings {
+export interface AppSettings {
     activeHold: Hold;
     holds: Hold[];
     weighThreshold: number;
@@ -26,25 +26,25 @@ interface AppSettings {
     sets: number;
 }
 
-interface SettingsProviderProps {
+export interface SettingsProviderProps {
     children: React.ReactNode;
 }
-type Hands = "separate" | "both";
+export type Hands = "separate" | "both";
 
-interface BaseWorkoutResults {
+export interface BaseWorkoutResults {
     time: string;
     type: WorkoutTypes;
     hand: Hands;
 }
 
-interface WorkoutResults extends BaseWorkoutResults {
+export interface WorkoutResults extends BaseWorkoutResults {
     left: number;
     right: number;
     both: number;
     hold: Hold;
 }
 
-interface HangTimerResults extends BaseWorkoutResults {
+export interface HangTimerResults extends BaseWorkoutResults {
     hangTime: number;
     restTime: number;
     pauseTime: number;
@@ -52,21 +52,19 @@ interface HangTimerResults extends BaseWorkoutResults {
     sets: number;
 }
 
-type WorkoutHistoryItem = WorkoutResults | HangTimerResults;
+export type WorkoutHistoryItem = WorkoutResults | HangTimerResults;
 
-interface ConnectionStatusBarProps {
+export interface ConnectionStatusBarProps {
     isConnected: boolean;
     error?: string;
 }
 
-interface HoldsModalProps {
+export interface HoldsModalProps {
     onClose: () => void;
     onSave: (hold: Hold) => void;
 }
 
-interface MeasureProps {
+export interface MeasureProps {
     save: boolean;
-    finishWorkout: (save: boolean, results: WorkoutResults) => void;
+    finishWorkout: (save: boolean, results: WorkoutHistoryItem) => void;
 }
-
-

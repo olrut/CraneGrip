@@ -4,9 +4,13 @@ import {Stack} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React, {useEffect} from 'react';
 import 'react-native-reanimated';
+import { Platform } from 'react-native';
 
-// Import your global CSS file
-import "../global.css";
+// Import global CSS only on web to avoid native resolution issues
+if (Platform.OS === 'web') {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  require('../global.css');
+}
 import {SettingsProvider} from "@/components/SettingContext";
 import {StatusBar} from "expo-status-bar";
 

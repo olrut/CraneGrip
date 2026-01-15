@@ -4,8 +4,13 @@ import {useSettings} from "@/components/SettingContext";
 import Colors from "@/constants/Colors";
 import {RestScreen} from "@/components/RestScreen";
 import {TimerCurtain} from "@/components/TimerCurtain";
-import {WorkoutTypes} from "@/enumTypes";
-function HangTimer({finishWorkout}) {
+import {WorkoutTypes, WorkoutHistoryItem} from "@/types";
+import { playBeep } from "@/components/sound";
+import * as Haptics from 'expo-haptics';
+
+type HangTimerProps = { finishWorkout: (save: boolean, results: WorkoutHistoryItem) => void };
+
+function HangTimer({finishWorkout}: HangTimerProps) {
     const {settings} = useSettings();
     const totalSets = useRef(settings.sets);
     const totalRepetitions = useRef(settings.repetitions);
@@ -15,6 +20,8 @@ function HangTimer({finishWorkout}) {
     const [isWorking, setIsWorking] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
     const [isPreparation, setIsPreparation] = useState(true);
+    const [prepareSeconds, setPrepareSeconds] = useState(settings.preparationTime);
+    const [restKey, setRestKey] = useState(0);
 
     useEffect(() => {
         let timer;
@@ -25,22 +32,26 @@ function HangTimer({finishWorkout}) {
                 timer = setTimeout(() => {
                     setIsResting(false);
                     setCurrentRepetition(1);
+                    if (settings.beep) { try { playBeep(); } catch {} }
                     setIsWorking(true);
                 }, settings.restTime * 1000);
             }
         } else if (isPaused) {
             timer = setTimeout(() => {
                 setIsPaused(false);
+                if (settings.beep) { try { playBeep(); } catch {} }
                 setIsWorking(true);
             }, settings.pauseTime * 1000);
         } else if (isWorking) {
             timer = setTimeout(() => {
                 if (currentRepetition < totalRepetitions.current) {
                     setIsWorking(false);
+                    if (settings.beep) { try { playBeep(); } catch {} }
                     setIsPaused(true);
                     setCurrentRepetition((prev) => prev + 1);
                 } else if (currentSet < totalSets.current) {
                     setIsWorking(false);
+                    if (settings.beep) { try { playBeep(); } catch {} }
                     setIsResting(true);
                     setCurrentSet((prev) => prev + 1);
                 } else {
@@ -50,21 +61,22 @@ function HangTimer({finishWorkout}) {
         } else if (isPreparation) {
             timer = setTimeout(() => {
                 setIsPreparation(false);
+                if (settings.beep) { try { playBeep(); } catch {} }
                 setIsWorking(true);
-            }, settings.preparationTime * 1000);
+            }, prepareSeconds * 1000);
         }
         return () => clearTimeout(timer);
-    }, [isResting, isWorking, isPaused, currentSet, currentRepetition]);
+    }, [isResting, isWorking, isPaused, isPreparation, prepareSeconds, currentSet, currentRepetition]);
 
     const finish = () => {
-        const workoutResults = {
+        const workoutResults: WorkoutHistoryItem = {
             time: new Date().toISOString(),
             hangTime: settings.hangTime,
             restTime: settings.restTime,
             pauseTime: settings.pauseTime,
             repetitions: settings.repetitions,
             sets: settings.sets,
-            hand: settings.hangTimerHands,
+            hand: settings.hangTimerHands ? "both" : "separate",
             type: WorkoutTypes.HangboardTimer,
         };
         finishWorkout(true, workoutResults);
@@ -77,12 +89,53 @@ function HangTimer({finishWorkout}) {
                 <Text style={styles.subHeader}>Repetition {currentRepetition} / {settings.repetitions}</Text>
             </View>
             {isPreparation ? (
-                <RestScreen message={"Prepare"} restTime={settings.preparationTime} isRunning={setIsPreparation}/>
+                <RestScreen
+                    message={"Prepare"}
+                    restTime={prepareSeconds}
+                    key={restKey}
+                    isRunning={setIsPreparation}
+                    onSkip={() => {
+                        // When prepare finishes, start working and beep
+                        if (settings.beep) { try { playBeep(); } catch {} }
+                        setIsWorking(true);
+                    }}
+                    showSkipButton={false}
+                />
             ) : isResting ? (
-                <RestScreen message={"Rest"} restTime={settings.restTime} isRunning={null}/>
+                <RestScreen
+                    message={"Rest"}
+                    restTime={settings.restTime}
+                    isRunning={setIsResting}
+                    onSkip={() => {
+                        // End rest, then give 3s prepare window
+                        if (currentSet >= totalSets.current) {
+                            finish();
+                        } else {
+                            setIsResting(false);
+                            setCurrentRepetition(1);
+                            setPrepareSeconds(3);
+                            setRestKey((k) => k + 1);
+                            setIsPreparation(true);
+                            if (settings.beep) { try { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); } catch {} }
+                        }
+                    }}
+                />
             ) : isPaused ? (
-                <RestScreen message={"Pause"} restTime={settings.pauseTime} isRunning={null}/>
+                <RestScreen
+                    message={"Pause"}
+                    restTime={settings.pauseTime}
+                    isRunning={setIsPaused}
+                    onSkip={() => {
+                        // End pause, then give 3s prepare window
+                        setIsPaused(false);
+                        setPrepareSeconds(3);
+                        setRestKey((k) => k + 1);
+                        setIsPreparation(true);
+                        if (settings.beep) { try { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); } catch {} }
+                    }}
+                />
             ) : (
+                // If none of the modes are on, show the timer
                 <TimerCurtain
                     initialSeconds={isWorking ? settings.hangTime : settings.preparationTime}
                     finished={() => setIsResting(true)}

@@ -5,15 +5,16 @@ import {StyledView, Text} from "@/components/Themed";
 import {Pressable, StyleSheet, View} from "react-native";
 import MaxLine from "@/components/MaxLine";
 import Colors from "@/constants/Colors";
-import {WorkoutResults} from "@/types";
+import {WorkoutHistoryItem} from "@/types";
 import {useSettings} from "@/components/SettingContext";
 import {scanForScale, stopScan} from "@/components/ScaleConnect";
-import SoundPlayer from "react-native-sound-player";
-import {WorkoutTypes} from "@/enumTypes";
+import { playRaceStart } from "@/components/sound";
+import {WorkoutTypes} from "@/types";
+import buttonStyles from "@/components/ButtonStyles";
 
 
 interface MaxProps {
-    finishWorkout: (save: boolean, results: WorkoutResults) => void;
+    finishWorkout: (save: boolean, results: WorkoutHistoryItem) => void;
 }
 
 export default function Max({finishWorkout}: MaxProps) {
@@ -86,14 +87,14 @@ export default function Max({finishWorkout}: MaxProps) {
                 break;
         }
 
-        const results = {
+        const results: WorkoutHistoryItem = {
             time: new Date().toISOString(),
             type: WorkoutTypes.Max,
             left: maxLeftRef.current,
             right: maxRightRef.current,
             both: maxBothRef.current,
             hold: settings.activeHold,
-            hand: null,
+            hand: "separate",
         };
 
         finishWorkout(save, results);
@@ -103,19 +104,12 @@ export default function Max({finishWorkout}: MaxProps) {
         setCurrentMax(0);
     };
 
-    /**
-     * TODO: Beep doesnt work :(
-     */
-    const playSound = () => {
-        try {
-            SoundPlayer.playAsset(require("../assets/sounds/race-start.mp3"));
-        } catch (e) {
-            console.error("Cannot play the sound file", e);
-        }
+    // Example: call to play a start sound using expo-av helper
+    const playSound = async () => {
+        try { await playRaceStart(); } catch {}
     };
 
     const changeHands = () => {
-        playSound();
         setCurrentHand((prevHand) => {
             switch (prevHand) {
                 case Hands.BOTH:
@@ -162,19 +156,19 @@ export default function Max({finishWorkout}: MaxProps) {
                         maxWeight={currentMax}/>
                 </View>
                 <View style={styles.buttons}>
-                    <Pressable style={styles.nextButton}
+                    <Pressable style={buttonStyles.neutral}
                                onPress={() => changeHands()}>
                         <Text style={styles.buttonText}>Change hand</Text>
                     </Pressable>
                 </View>
                 <View style={styles.buttons}>
-                    <Pressable style={styles.resetButton} onPress={() => resetMax()}>
+                    <Pressable style={buttonStyles.danger} onPress={() => resetMax()}>
                         <Text style={styles.buttonText}>Reset max</Text>
                     </Pressable>
-                    <Pressable style={styles.resetButton} onPress={() => finish(false)}>
+                    <Pressable style={buttonStyles.danger} onPress={() => finish(false)}>
                         <Text style={styles.buttonText}>Cancel</Text>
                     </Pressable>
-                    <Pressable style={styles.button} onPress={() => finish(true)}>
+                    <Pressable style={buttonStyles.primary} onPress={() => finish(true)}>
                         <Text style={styles.buttonText}>Save</Text>
                     </Pressable>
                 </View>
@@ -224,40 +218,14 @@ const styles = StyleSheet.create({
     buttons: {
         flexDirection: "row",
         justifyContent: "center",
-        marginBottom: 5,
-        padding: 3,
+        marginBottom: 8,
+        padding: 4,
+        gap: 8,
         marginTop: 0,
     },
-    button: {
-        flex: 1,
-        marginHorizontal: 3,
-        justifyContent: "center",
-        paddingHorizontal: 10,
-        borderRadius: 10,
-        alignItems: 'center',
-        backgroundColor: Colors.dark.confirmButton,
-        padding: 20,
-    },
-    resetButton: {
-        flex: 1,
-        marginHorizontal: 3,
-        justifyContent: "center",
-        paddingHorizontal: 10,
-        borderRadius: 10,
-        alignItems: 'center',
-        backgroundColor: Colors.dark.resetButton,
-    },
-    nextButton: {
-        flex: 1,
-        marginHorizontal: 3,
-        justifyContent: "center",
-        paddingHorizontal: 10,
-        borderRadius: 10,
-        alignItems: 'center',
-        backgroundColor: Colors.dark.connected,
-        padding: 20,
-        color: Colors.dark.text,
-    },
+    button: {},
+    resetButton: {},
+    nextButton: {},
     current: {
         fontSize: 40,
         color: Colors.dark.connected,
